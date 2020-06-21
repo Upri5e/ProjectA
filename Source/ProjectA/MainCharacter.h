@@ -31,7 +31,11 @@ private:
 	void Turn(float AxisValue);
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
+	void Jump();
 
 	UPROPERTY(EditAnywhere, Category = CharacterInfo)
 	float Sensitivity = 60;
+
+	UPROPERTY(VisableAnywhere, BlueprintCallable, Category = Jump)
+	bool isJumping;
 };
