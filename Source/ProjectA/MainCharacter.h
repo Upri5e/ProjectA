@@ -36,6 +36,5 @@ private:
 	UPROPERTY(EditAnywhere, Category = CharacterInfo)
 	float Sensitivity = 60;
 
-	UPROPERTY(VisibleAnywhere, BlueprintCallable, Category = Jump)
-	bool isJumping;
+
 };
