@@ -33,6 +33,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCompo
 	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &AMainCharacter::Turn);
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AMainCharacter::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AMainCharacter::MoveRight);
+	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &ACharacter::Jump);
 
 }
 
@@ -55,3 +56,5 @@ void AMainCharacter::MoveRight(float AxisValue)
 {
 	AddMovementInput(GetActorRightVector(), AxisValue);
 }
+
+
