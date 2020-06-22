@@ -9,7 +9,7 @@ AWallRunHit::AWallRunHit()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	// Use a sphere as a simple collision representation
-	MyComp = CreateDefaultSubobject<CapsuleComponent>(TEXT("BoxComp"));
+	//MyComp = CreateDefaultSubobject<CapsuleComponent>(TEXT("BoxComp"));
 	// MyComp->SetSimulatePhysics(true);
 	// MyComp->SetNotifyRigidBodyCollision(true);
 
@@ -23,7 +23,6 @@ AWallRunHit::AWallRunHit()
 void AWallRunHit::BeginPlay()
 {
 	Super::BeginPlay();
-	MyComp->OnComponentHit.AddDynamic(this, &AWallRunHit::OnWallHit);
 }
 
 // Called every frame
@@ -34,9 +33,4 @@ void AWallRunHit::Tick(float DeltaTime)
 
 void AWallRunHit::OnWallHit(UPrimitiveComponent *HitComp, AActor *OtherActor, UPrimitiveComponent *OtherComp, FVector NormalImpulse, const FHitResult &Hit)
 {
-	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL))
-	{
-		if (GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("I Hit: %s"), *OtherActor->GetName()));
-	}
 }

@@ -3,9 +3,11 @@
 
 #include "Components/InputComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/PlayerController.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -13,19 +15,18 @@ AMainCharacter::AMainCharacter()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	WallRunCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("WallRunCapsule"));
-	WallRunCapsule->SetSimulatePhysics(true);
-	WallRunCapsule->SetNotifyRigidBodyCollision(true);
-
-	WallRunCapsule->BodyInstance.SetCollisionProfileName("BlockAllDynamic");
+	WallRunningCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("WallRunningCapsule"));
+	WallRunningCapsule->InitCapsuleSize(55.f, 96.0f);
+	WallRunningCapsule->SetCollisionProfileName(TEXT("Trigger"));
+	WallRunningCapsule->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	WallRunCapsule->OnComponentHit.AddDynamic(this, &AMainCharacter::OnWallHit);
-	WallRun();
+	WallRunningCapsule->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnOverlapBegin);
+	WallRunningCapsule->OnComponentEndOverlap.AddDynamic(this, &AMainCharacter::OnOverlapEnd);
 }
 
 // Called every frame
@@ -45,6 +46,26 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCompo
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AMainCharacter::MoveRight);
 
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &AMainCharacter::WallRun);
+}
+
+void AMainCharacter::OnOverlapBegin(class UPrimitiveComponent *OverlappedComp, class AActor *OtherActor, class UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
+{
+	if (OtherActor && (OtherActor != this) && OtherComp && OtherActor->ActorHasTag(TEXT("Runable")))
+	{
+		StickToWall = true;
+		UE_LOG(LogTemp, Warning, TEXT("Overlapstart %s"), *OtherActor->GetName());
+	}
+}
+
+void AMainCharacter::OnOverlapEnd(class UPrimitiveComponent *OverlappedComp, class AActor *OtherActor, class UPrimitiveComponent *OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor && (OtherActor != this) && OtherComp && OtherActor->ActorHasTag(TEXT("Runable")))
+	{
+		StickToWall = false;
+		GetCharacterMovement()->GravityScale = 1;
+		UE_LOG(LogTemp, Warning, TEXT("end %s"), *OtherActor->GetName());
+	}
 }
 
 void AMainCharacter::MoveForward(float AxisValue)
@@ -59,12 +80,21 @@ void AMainCharacter::MoveRight(float AxisValue)
 
 void AMainCharacter::WallRun()
 {
-}
-
-void AMainCharacter::OnWallHit(UPrimitiveComponent *HitComp, AActor *OtherActor, UPrimitiveComponent *OtherComp, FVector NormalImpulse, const FHitResult &Hit)
-{
-	if (OtherActor != nullptr && OtherActor != this && OtherComp != nullptr)
+	bool JumpKeyPressed = GetWorld()->GetFirstPlayerController()->GetInputAnalogKeyState(TEXT("Jump"));
+	FString jumping = "False";
+	if (JumpKeyPressed)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("HIT : %s"), *OtherActor->GetName());
+		jumping = "true";
+	}
+	if (StickToWall && GetCharacterMovement()->IsFalling())
+	{
+		GetCharacterMovement()->GravityScale = 0.01;
+		GetCharacterMovement()->BrakingDecelerationFalling = 0.1;
+		UE_LOG(LogTemp, Warning, TEXT("falling %s"), *jumping);
+	}
+	else
+	{
+		GetCharacterMovement()->GravityScale = 1;
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *jumping);
 	}
 }

@@ -19,6 +19,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(VisibleAnywhere, Category = "Wall Running")
+	class UCapsuleComponent *WallRunningCapsule;
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -26,18 +29,24 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent *PlayerInputComponent) override;
 
+	UFUNCTION()
+	void OnOverlapBegin(class UPrimitiveComponent *OverlappedComp, class AActor *OtherActor, class UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
+
+	// declare overlap end function
+	UFUNCTION()
+	void OnOverlapEnd(class UPrimitiveComponent *OverlappedComp, class AActor *OtherActor, class UPrimitiveComponent *OtherComp, int32 OtherBodyIndex);
+
 private:
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
 
 	void WallRun();
 
-	UFUNCTION()
-	void OnWallHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
+	bool StickToWall = false;
+	
 	UPROPERTY(EditAnywhere, Category = CharacterInfo)
 	float Sensitivity = 60;
 
 	UPROPERTY(EditAnywhere)
-	class UCapsuleComponent *WallRunCapsule;
+	class UCapsuleComponent *RunCapsule;
 };
