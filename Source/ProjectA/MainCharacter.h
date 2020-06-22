@@ -27,14 +27,17 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent *PlayerInputComponent) override;
 
 private:
-	void LookUp(float AxisValue);
-	void Turn(float AxisValue);
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
 
+	void WallRun();
+
+	UFUNCTION()
+	void OnWallHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	UPROPERTY(EditAnywhere, Category = CharacterInfo)
 	float Sensitivity = 60;
 
-
+	UPROPERTY(EditAnywhere)
+	class UCapsuleComponent *WallRunCapsule;
 };
