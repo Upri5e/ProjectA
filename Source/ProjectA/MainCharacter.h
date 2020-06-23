@@ -22,6 +22,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Wall Running")
 	class UCapsuleComponent *WallRunningCapsule;
 
+	class UTimelineComponent *MyTimeline;
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -29,24 +31,41 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent *PlayerInputComponent) override;
 
-	UFUNCTION()
-	void OnOverlapBegin(class UPrimitiveComponent *OverlappedComp, class AActor *OtherActor, class UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
-
-	// declare overlap end function
-	UFUNCTION()
-	void OnOverlapEnd(class UPrimitiveComponent *OverlappedComp, class AActor *OtherActor, class UPrimitiveComponent *OtherComp, int32 OtherBodyIndex);
+	virtual void Landed(const FHitResult &Hit) override;
 
 private:
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
+	void EndingJump();
 
-	void WallRun();
+	void DoubleJump();
 
-	bool StickToWall = false;
-	
+public:
+	UFUNCTION()
+	void TimelineFloatReturn(float value);
+
+	UFUNCTION()
+	void OnTimelineFinished();
+
+	UFUNCTION()
+	void OnWallBeginOverlap(UPrimitiveComponent *OverlappedComp, AActor *OtherActor, UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
+
+	UFUNCTION()
+	void OnWallEndOverlap(class UPrimitiveComponent *OverlappedComp, class AActor *OtherActor, class UPrimitiveComponent *OtherComp, int32 OtherBodyIndex);
+
+	int JumpCounter = 0;
+	bool OnWall = false;
+
+	UPROPERTY(EditAnywhere, Category = "Wall Running")
+	class UCurveFloat *fCurve;
+
 	UPROPERTY(EditAnywhere, Category = CharacterInfo)
 	float Sensitivity = 60;
 
 	UPROPERTY(EditAnywhere)
 	class UCapsuleComponent *RunCapsule;
+
+	UPROPERTY(EditAnywhere, Category = CharacterMovement)
+	float JumpHeight = 420;
+
 };

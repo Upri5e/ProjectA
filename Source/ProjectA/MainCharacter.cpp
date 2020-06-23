@@ -8,6 +8,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
+#include "Components/TimelineComponent.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -17,16 +18,34 @@ AMainCharacter::AMainCharacter()
 
 	WallRunningCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("WallRunningCapsule"));
 	WallRunningCapsule->InitCapsuleSize(55.f, 96.0f);
-	WallRunningCapsule->SetCollisionProfileName(TEXT("Trigger"));
+	WallRunningCapsule->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 	WallRunningCapsule->SetupAttachment(RootComponent);
-}
 
+	//Add our on timeline finished function
+	MyTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("MyTimeline"));
+
+	MyTimeline->SetLooping(true);
+	MyTimeline->SetIgnoreTimeDilation(true);
+}
 // Called when the game starts or when spawned
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	WallRunningCapsule->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnOverlapBegin);
-	WallRunningCapsule->OnComponentEndOverlap.AddDynamic(this, &AMainCharacter::OnOverlapEnd);
+	if (fCurve)
+	{
+		//Declare our delegate function to be binded with TimelineFloatReturn
+		FOnTimelineFloat InterpFunction{};
+		//Declare our delegate function to be binded with OnTimelineFinished
+		FOnTimelineEventStatic TimelineFinished{};
+
+		InterpFunction.BindUFunction(this, FName("TimelineFloatReturn"));
+		TimelineFinished.BindUFunction(this, FName("OnTimelineFinished"));
+
+		MyTimeline->AddInterpFloat(fCurve, InterpFunction, FName("Alpha"));
+		MyTimeline->SetTimelineFinishedFunc(TimelineFinished);
+	}
+	WallRunningCapsule->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnWallBeginOverlap);
+	WallRunningCapsule->OnComponentEndOverlap.AddDynamic(this, &AMainCharacter::OnWallEndOverlap);
 }
 
 // Called every frame
@@ -45,27 +64,13 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCompo
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AMainCharacter::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AMainCharacter::MoveRight);
 
-	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &AMainCharacter::WallRun);
+	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &AMainCharacter::DoubleJump);
+	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Released, this, &AMainCharacter::EndingJump);
 }
 
-void AMainCharacter::OnOverlapBegin(class UPrimitiveComponent *OverlappedComp, class AActor *OtherActor, class UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
+void AMainCharacter::Landed(const FHitResult &Hit)
 {
-	if (OtherActor && (OtherActor != this) && OtherComp && OtherActor->ActorHasTag(TEXT("Runable")))
-	{
-		StickToWall = true;
-		UE_LOG(LogTemp, Warning, TEXT("Overlapstart %s"), *OtherActor->GetName());
-	}
-}
-
-void AMainCharacter::OnOverlapEnd(class UPrimitiveComponent *OverlappedComp, class AActor *OtherActor, class UPrimitiveComponent *OtherComp, int32 OtherBodyIndex)
-{
-	if (OtherActor && (OtherActor != this) && OtherComp && OtherActor->ActorHasTag(TEXT("Runable")))
-	{
-		StickToWall = false;
-		GetCharacterMovement()->GravityScale = 1;
-		UE_LOG(LogTemp, Warning, TEXT("end %s"), *OtherActor->GetName());
-	}
+	JumpCounter = 0;
 }
 
 void AMainCharacter::MoveForward(float AxisValue)
@@ -78,23 +83,64 @@ void AMainCharacter::MoveRight(float AxisValue)
 	AddMovementInput(GetActorRightVector(), AxisValue);
 }
 
-void AMainCharacter::WallRun()
+void AMainCharacter::EndingJump()
 {
-	bool JumpKeyPressed = GetWorld()->GetFirstPlayerController()->GetInputAnalogKeyState(TEXT("Jump"));
-	FString jumping = "False";
-	if (JumpKeyPressed)
+	ACharacter::StopJumping();
+	GetCharacterMovement()->GravityScale = 1;
+	GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0, 0, 0));
+	OnWall = false;
+}
+
+void AMainCharacter::DoubleJump()
+{
+	if (JumpCounter <= 1)
 	{
-		jumping = "true";
+		JumpCounter++;
+		ACharacter::LaunchCharacter(FVector(0, 0, JumpHeight), false, true);
 	}
-	if (StickToWall && GetCharacterMovement()->IsFalling())
+}
+
+void AMainCharacter::TimelineFloatReturn(float value)
+{
+	float KeyPressed = GetWorld()->GetFirstPlayerController()->GetInputKeyTimeDown(TEXT("Spacebar"));
+	if (KeyPressed > 0 && OnWall)
 	{
-		GetCharacterMovement()->GravityScale = 0.01;
-		GetCharacterMovement()->BrakingDecelerationFalling = 0.1;
-		UE_LOG(LogTemp, Warning, TEXT("falling %s"), *jumping);
+		FVector PlayerDirection = GetActorForwardVector(); //MIGHT CHANGE IMPORTANT
+		GetCharacterMovement()->GravityScale = 0;
+		GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0, 0, 1));
+		GetCharacterMovement()->AddForce(PlayerDirection + 200000);
 	}
 	else
 	{
 		GetCharacterMovement()->GravityScale = 1;
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *jumping);
+		GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0, 0, 0));
+		OnWall = false;
+	}
+}
+
+void AMainCharacter::OnTimelineFinished()
+{
+}
+
+void AMainCharacter::OnWallBeginOverlap(UPrimitiveComponent *OverlappedComp, AActor *OtherActor, UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
+{
+	JumpCounter = 0;
+	if (OtherActor->ActorHasTag(TEXT("Runable")) && GetCharacterMovement()->IsFalling())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Overlapping"));
+		OnWall = true;
+		MyTimeline->Play();
+	}
+}
+
+void AMainCharacter::OnWallEndOverlap(class UPrimitiveComponent *OverlappedComp, class AActor *OtherActor, class UPrimitiveComponent *OtherComp, int32 OtherBodyIndex)
+{
+	MyTimeline->Stop();
+	if (OtherActor->ActorHasTag(TEXT("Runable")))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("NOT Overlapping"));
+		GetCharacterMovement()->GravityScale = 1;
+		GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0, 0, 0));
+		OnWall = false;
 	}
 }
