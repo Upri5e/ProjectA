@@ -54,10 +54,14 @@ public:
 	void OnWallEndOverlap(class UPrimitiveComponent *OverlappedComp, class AActor *OtherActor, class UPrimitiveComponent *OtherComp, int32 OtherBodyIndex);
 
 	int JumpCounter = 0;
+
 	bool OnWall = false;
 
 	UPROPERTY(EditAnywhere, Category = "Wall Running")
 	class UCurveFloat *fCurve;
+
+	UPROPERTY(EditAnywhere, Category = "Wall Running")
+	float DirectionForce = 20000;
 
 	UPROPERTY(EditAnywhere, Category = CharacterInfo)
 	float Sensitivity = 60;
@@ -67,5 +71,4 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = CharacterMovement)
 	float JumpHeight = 420;
-
 };

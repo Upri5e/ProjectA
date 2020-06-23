@@ -31,6 +31,7 @@ AMainCharacter::AMainCharacter()
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	GetCharacterMovement()->SetPlaneConstraintEnabled(true);
 	if (fCurve)
 	{
 		//Declare our delegate function to be binded with TimelineFloatReturn
@@ -108,7 +109,7 @@ void AMainCharacter::TimelineFloatReturn(float value)
 		FVector PlayerDirection = GetActorForwardVector(); //MIGHT CHANGE IMPORTANT
 		GetCharacterMovement()->GravityScale = 0;
 		GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0, 0, 1));
-		GetCharacterMovement()->AddForce(PlayerDirection + 200000);
+		GetCharacterMovement()->AddForce(PlayerDirection + DirectionForce);
 	}
 	else
 	{
