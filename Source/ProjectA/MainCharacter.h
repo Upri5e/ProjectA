@@ -57,6 +57,8 @@ public:
 
 	bool OnWall = false;
 
+	class APlayerCameraManager *CameraManager;
+
 	UPROPERTY(EditAnywhere, Category = "Wall Running")
 	class UCurveFloat *fCurve;
 

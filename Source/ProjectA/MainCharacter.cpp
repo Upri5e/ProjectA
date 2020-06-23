@@ -9,6 +9,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Components/TimelineComponent.h"
+#include "Camera/PlayerCameraManager.h"
+#include "Math/Vector.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -106,10 +108,15 @@ void AMainCharacter::TimelineFloatReturn(float value)
 	float KeyPressed = GetWorld()->GetFirstPlayerController()->GetInputKeyTimeDown(TEXT("Spacebar"));
 	if (KeyPressed > 0 && OnWall)
 	{
-		FVector PlayerDirection = GetActorForwardVector(); //MIGHT CHANGE IMPORTANT
+		CameraManager = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
+		FVector PlayerDirection = CameraManager->GetActorForwardVector();
 		GetCharacterMovement()->GravityScale = 0;
 		GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0, 0, 1));
 		GetCharacterMovement()->AddForce(PlayerDirection + DirectionForce);
+		// JumpCounter = 1;
+		// if (GetCharacterMovement()->Velocity.GetSafeNormal().Size() < GetCharacterMovement()->MaxAcceleration)
+		// {
+		// }
 	}
 	else
 	{
@@ -125,10 +132,9 @@ void AMainCharacter::OnTimelineFinished()
 
 void AMainCharacter::OnWallBeginOverlap(UPrimitiveComponent *OverlappedComp, AActor *OtherActor, UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
 {
-	JumpCounter = 0;
+	//JumpCounter = 0;
 	if (OtherActor->ActorHasTag(TEXT("Runable")) && GetCharacterMovement()->IsFalling())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Overlapping"));
 		OnWall = true;
 		MyTimeline->Play();
 	}
@@ -139,7 +145,6 @@ void AMainCharacter::OnWallEndOverlap(class UPrimitiveComponent *OverlappedComp,
 	MyTimeline->Stop();
 	if (OtherActor->ActorHasTag(TEXT("Runable")))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("NOT Overlapping"));
 		GetCharacterMovement()->GravityScale = 1;
 		GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0, 0, 0));
 		OnWall = false;
