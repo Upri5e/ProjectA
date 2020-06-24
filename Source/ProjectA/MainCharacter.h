@@ -31,10 +31,12 @@ private:
 	void Turn(float AxisValue);
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
+	void Interact();
 
 
 	UPROPERTY(EditAnywhere, Category = CharacterInfo)
 	float Sensitivity = 60;
 
-
+	UPROPERTY(EditAnywhere)
+	float MaxInteractRange = 500;
 };
