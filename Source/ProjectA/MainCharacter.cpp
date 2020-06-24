@@ -90,7 +90,6 @@ void AMainCharacter::MoveRight(float AxisValue)
 
 void AMainCharacter::Interact()
 {
-
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 	if (OwnerPawn == nullptr) return;
 	AController* OwnerController = OwnerPawn->GetController();
@@ -102,16 +101,18 @@ void AMainCharacter::Interact()
 	OwnerController->GetPlayerViewPoint(Location, Rotation);
 
 	DrawDebugCamera(GetWorld(), Location, Rotation, 90, 2, FColor::Red, true);
-
-
-void AMainCharacter::EndingJump()
-{
-	ACharacter::StopJumping();
-	GetCharacterMovement()->GravityScale = 1;
-	GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0, 0, 0));
-	OnWall = false;
-
 }
+
+
+
+	void AMainCharacter::EndingJump()
+	{
+		ACharacter::StopJumping();
+		GetCharacterMovement()->GravityScale = 1;
+		GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0, 0, 0));
+		OnWall = false;
+
+	}
 
 void AMainCharacter::DoubleJump()
 {
