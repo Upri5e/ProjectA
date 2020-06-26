@@ -62,25 +62,20 @@ public:
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent *HitComponent, AActor *OtherActor, UPrimitiveComponent *OtherComp, FVector NormalImpulse, const FHitResult &Hit);
 
-	UFUNCTION()
 	bool CanSurfaceBeWallRan(FVector SurfaceNormal) const;
 
 	FVector FindLaunchVelocity() const;
 
-	UFUNCTION()
 	bool AreRequiredKeysDown() const;
 
-	UFUNCTION()
 	FVector2D GetHorizontalVelocity() const;
 
-	UFUNCTION()
 	void SetHorizontalVelocity(FVector2D HorizontalVelocity);
 
-	UFUNCTION()
 	void UpdateWallRun();
 
-	UFUNCTION()
 	void ClampHorizontalVelocity();
+
 	UFUNCTION()
 	void TimelineFloatReturn(float value);
 
@@ -93,10 +88,8 @@ public:
 	// UFUNCTION()
 	// void OnWallEndOverlap(class UPrimitiveComponent *OverlappedComp, class AActor *OtherActor, class UPrimitiveComponent *OtherComp, int32 OtherBodyIndex);
 
-	UFUNCTION()
 	void WallRunExpire();
 
-	UFUNCTION()
 	void FindDirectionAndSide(FVector WallNormal, EWallRunSide &Side, FVector &Direction);
 
 	enum EWallRunSide WallRunSide;
@@ -105,13 +98,10 @@ public:
 
 	bool OnWall = false;
 
-	UPROPERTY()
 	FVector WallRunDirection;
 
-	UPROPERTY()
 	float RightAxis;
 
-	UPROPERTY()
 	float ForwardAxis;
 
 	UPROPERTY(EditAnywhere, Category = "Wall Running")
@@ -130,7 +120,6 @@ public:
 	float Sensitivity = 60;
 
 	UPROPERTY(EditAnywhere)
-
 	float MaxInteractRange = 500;
 
 	class UCapsuleComponent *RunCapsule;
