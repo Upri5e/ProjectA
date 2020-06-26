@@ -290,7 +290,7 @@ void AMainCharacter::UpdateWallRun()
 			CrossPro = FVector(0, 0, 1);
 			break;
 		}
-		EndLocation = Product.CrossProduct(WallRunDirection, CrossPro) + GetActorLocation() * 50;
+		EndLocation = Product.CrossProduct(WallRunDirection, CrossPro) + GetActorLocation() * 200;
 		if (GetWorld()->LineTraceSingleByChannel(OutHit, GetActorLocation(), EndLocation, ECollisionChannel::ECC_GameTraceChannel1))
 		{
 			EWallRunSide Side;

@@ -48,6 +48,9 @@ public:
 private:
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
+
+	void Interact();
+
 	void EndingJump();
 	void DoubleJump();
 
@@ -115,6 +118,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Wall Running")
 	class UCurveFloat *fCurve;
 
+
 	UPROPERTY(EditAnywhere, Category = "Wall Running")
 	float DirectionForce = 20000;
 
@@ -128,8 +132,12 @@ public:
 	float Sensitivity = 60;
 
 	UPROPERTY(EditAnywhere)
+
+	float MaxInteractRange = 500;
+
 	class UCapsuleComponent *RunCapsule;
 
 	UPROPERTY(EditAnywhere, Category = CharacterMovement)
 	float JumpHeight = 420;
+
 };
