@@ -65,7 +65,6 @@ public:
 	UFUNCTION()
 	bool CanSurfaceBeWallRan(FVector SurfaceNormal) const;
 
-	UFUNCTION()
 	FVector FindLaunchVelocity() const;
 
 	UFUNCTION()
@@ -118,7 +117,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Wall Running")
 	class UCurveFloat *fCurve;
 
-
 	UPROPERTY(EditAnywhere, Category = "Wall Running")
 	float DirectionForce = 20000;
 
@@ -139,5 +137,4 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = CharacterMovement)
 	float JumpHeight = 420;
-
 };

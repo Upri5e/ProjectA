@@ -110,6 +110,7 @@ void AMainCharacter::DoubleJump()
 		if (OnWall)
 		{
 			EndWallRun(EWallRunEndReason::JumpedOfWall);
+			JumpCounter++;
 		}
 	}
 }
@@ -132,7 +133,7 @@ void AMainCharacter::EndWallRun(EWallRunEndReason Reason)
 		JumpCounter = 1;
 		break;
 	case JumpedOfWall:
-		JumpCounter = 0;
+		JumpCounter = 1;
 		break;
 	}
 	GetCharacterMovement()->AirControl = 0.05;
@@ -209,12 +210,12 @@ FVector AMainCharacter::FindLaunchVelocity() const
 	}
 	else
 	{
-		// if (GetCharacterMovement()->IsFalling())
-		// {
-		// 	FVector ToTheRight = GetActorRightVector() * RightAxis;
-		// 	FVector ForwardVector = GetActorForwardVector() * ForwardAxis;
-		// 	LaunchDirection = ForwardVector + ToTheRight;
-		// }
+		if (GetCharacterMovement()->IsFalling())
+		{
+			FVector ToTheRight = GetActorRightVector() * RightAxis;
+			FVector ForwardVector = GetActorForwardVector() * ForwardAxis;
+			LaunchDirection = ForwardVector + ToTheRight;
+		}
 	}
 	return (LaunchDirection + FVector(0, 0, 1)) * GetCharacterMovement()->JumpZVelocity;
 }
