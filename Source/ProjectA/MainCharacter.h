@@ -6,6 +6,18 @@
 #include "GameFramework/Character.h"
 #include "MainCharacter.generated.h"
 
+UENUM()
+enum class EWallRunSide
+{
+	Right,
+	Left
+};
+UENUM()
+enum EWallRunEndReason
+{
+	FellOffWall,
+	JumpedOfWall
+};
 UCLASS()
 class PROJECTA_API AMainCharacter : public ACharacter
 {
@@ -40,27 +52,68 @@ private:
 	void Interact();
 
 	void EndingJump();
-
 	void DoubleJump();
 
+	void BeginWallRun();
+	void EndWallRun(EWallRunEndReason Reason);
+	FTimerHandle UnusedHandler;
+
 public:
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent *HitComponent, AActor *OtherActor, UPrimitiveComponent *OtherComp, FVector NormalImpulse, const FHitResult &Hit);
+
+	UFUNCTION()
+	bool CanSurfaceBeWallRan(FVector SurfaceNormal) const;
+
+	UFUNCTION()
+	FVector FindLaunchVelocity() const;
+
+	UFUNCTION()
+	bool AreRequiredKeysDown() const;
+
+	UFUNCTION()
+	FVector2D GetHorizontalVelocity() const;
+
+	UFUNCTION()
+	void SetHorizontalVelocity(FVector2D HorizontalVelocity);
+
+	UFUNCTION()
+	void UpdateWallRun();
+
+	UFUNCTION()
+	void ClampHorizontalVelocity();
 	UFUNCTION()
 	void TimelineFloatReturn(float value);
 
 	UFUNCTION()
 	void OnTimelineFinished();
 
-	UFUNCTION()
-	void OnWallBeginOverlap(UPrimitiveComponent *OverlappedComp, AActor *OtherActor, UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
+	// UFUNCTION()
+	// void OnWallBeginOverlap(UPrimitiveComponent *OverlappedComp, AActor *OtherActor, UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
+
+	// UFUNCTION()
+	// void OnWallEndOverlap(class UPrimitiveComponent *OverlappedComp, class AActor *OtherActor, class UPrimitiveComponent *OtherComp, int32 OtherBodyIndex);
 
 	UFUNCTION()
-	void OnWallEndOverlap(class UPrimitiveComponent *OverlappedComp, class AActor *OtherActor, class UPrimitiveComponent *OtherComp, int32 OtherBodyIndex);
+	void WallRunExpire();
+
+	UFUNCTION()
+	void FindDirectionAndSide(FVector WallNormal, EWallRunSide &Side, FVector &Direction);
+
+	enum EWallRunSide WallRunSide;
 
 	int JumpCounter = 0;
 
 	bool OnWall = false;
 
-	class APlayerCameraManager *CameraManager;
+	UPROPERTY()
+	FVector WallRunDirection;
+
+	UPROPERTY()
+	float RightAxis;
+
+	UPROPERTY()
+	float ForwardAxis;
 
 	UPROPERTY(EditAnywhere, Category = "Wall Running")
 	class UCurveFloat *fCurve;
@@ -68,6 +121,12 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Wall Running")
 	float DirectionForce = 20000;
+
+	UPROPERTY(EditAnywhere, Category = "Wall Running")
+	float FallOffWallTime = 3;
+
+	UPROPERTY(EditAnywhere, Category = "Wall Running")
+	float FallOffWallSpeed = 0.01;
 
 	UPROPERTY(EditAnywhere, Category = CharacterInfo)
 	float Sensitivity = 60;

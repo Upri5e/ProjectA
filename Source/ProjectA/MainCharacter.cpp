@@ -100,13 +100,7 @@ void AMainCharacter::Interact()
 	FRotator Rotation;
 	OwnerController->GetPlayerViewPoint(Location, Rotation);
 
-	FVector End = Location + Rotation.Vector() * MaxInteractRange;
-	FHitResult Hit;
-	bool bSuccess = GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECollisionChannel::ECC_GameTraceChannel1);
-	if (bSuccess)
-	{
-		DrawDebugCamera(GetWorld(), Location, Rotation, 90, 2, FColor::Red, true);
-	};
+	DrawDebugCamera(GetWorld(), Location, Rotation, 90, 2, FColor::Red, true);
 }
 
 
