@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "PickUp.generated.h"
 
+class UPrimitiveComponent
+
 UCLASS()
 class PROJECTA_API APickUp : public AActor
 {
@@ -22,5 +24,20 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION()
+	void PickUp();
+
+	UFUNCTION()
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	int32 Inventory = 0;
+	int32 MaxSpace = 2;
+private:
+	UPROPERTY()
+	UBoxComponent* BoxCollider;
+
+	UPROPERTY()
+	UStaticMeshComponent* BaseMesh;
 
 };
