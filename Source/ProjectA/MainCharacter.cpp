@@ -19,11 +19,6 @@ AMainCharacter::AMainCharacter()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	// WallRunningCapsule = GetCapsuleComponent()->
-	// WallRunningCapsule->InitCapsuleSize(55.f, 96.0f);
-	// WallRunningCapsule->SetCollisionProfileName(TEXT("Pawn"));
-	// WallRunningCapsule->SetupAttachment(RootComponent);
-
 	//Add our on timeline finished function
 	MyTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("MyTimeline"));
 
@@ -51,8 +46,6 @@ void AMainCharacter::BeginPlay()
 		MyTimeline->SetTimelineFinishedFunc(TimelineFinished);
 		MyTimeline->SetLooping(true);
 	}
-	// WallRunningCapsule->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnWallBeginOverlap);
-	// WallRunningCapsule->OnComponentEndOverlap.AddDynamic(this, &AMainCharacter::OnWallEndOverlap);
 }
 
 // Called every frame
@@ -97,14 +90,15 @@ void AMainCharacter::EndingJump()
 {
 
 	ACharacter::StopJumping();
-	WallRunExpire();
 }
 
 void AMainCharacter::DoubleJump()
 {
+	FindLaunchVelocity();
 	if (JumpCounter <= 1)
 	{
 		ACharacter::LaunchCharacter(FindLaunchVelocity(), false, true);
+		UE_LOG(LogTemp, Warning, TEXT("Jumps %s"), *FindLaunchVelocity().ToString());
 		JumpCounter++;
 
 		if (OnWall)
@@ -121,7 +115,7 @@ void AMainCharacter::BeginWallRun()
 	GetCharacterMovement()->GravityScale = 0.f;
 	GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0, 0, 1));
 	OnWall = true;
-
+	JumpCounter = 0;
 	MyTimeline->Play();
 }
 
@@ -133,7 +127,7 @@ void AMainCharacter::EndWallRun(EWallRunEndReason Reason)
 		JumpCounter = 1;
 		break;
 	case JumpedOfWall:
-		JumpCounter = 1;
+		JumpCounter = 0;
 		break;
 	}
 	GetCharacterMovement()->AirControl = 0.05;
@@ -195,6 +189,7 @@ FVector AMainCharacter::FindLaunchVelocity() const
 	FVector LaunchDirection;
 	if (OnWall)
 	{
+		FVector CrossPr;
 		FVector WallRunSideVector;
 		switch (WallRunSide)
 		{
@@ -206,7 +201,7 @@ FVector AMainCharacter::FindLaunchVelocity() const
 			WallRunSideVector = FVector(0, 0, 1);
 			break;
 		}
-		LaunchDirection.CrossProduct(WallRunDirection, WallRunSideVector);
+		LaunchDirection = CrossPr.CrossProduct(WallRunDirection, WallRunSideVector);
 	}
 	else
 	{
@@ -332,51 +327,12 @@ void AMainCharacter::ClampHorizontalVelocity()
 		}
 	}
 }
-void AMainCharacter::WallRunExpire()
-{
-	// GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0, 0, 0));
-	// MyTimeline->Stop();
-	// GetCharacterMovement()->GravityScale = FMath::Lerp(GetCharacterMovement()->GravityScale, 1.f, FallOffWallSpeed);
-	// OnWall = false;
-}
+
 void AMainCharacter::TimelineFloatReturn(float value)
 {
-	// 	float KeyPressed = GetWorld()->GetFirstPlayerController()->GetInputKeyTimeDown(TEXT("Spacebar"));
-	// 	if (KeyPressed > 0 && OnWall)
-	// 	{
-
-	// 		FVector PlayerDirection = GetOwner()->GetActorForwardVector();
-	// 		GetCharacterMovement()->GravityScale = 0;
-	// 		GetCharacterMovement()->SetPlaneConstraintNormal(FVector(1, 0, 1));
-	// 		GetCharacterMovement()->AddForce(PlayerDirection + DirectionForce);
-	// 	}
-	// 	else
-	// 	{
-	// 		WallRunExpire();
-	// 	}
 	UpdateWallRun();
 }
 
 void AMainCharacter::OnTimelineFinished()
 {
 }
-
-// void AMainCharacter::OnWallBeginOverlap(UPrimitiveComponent *OverlappedComp, AActor *OtherActor, UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
-// {
-// 	JumpCounter = 0;
-// 	if (OtherActor->ActorHasTag(TEXT("Runable")) && GetCharacterMovement()->IsFalling())
-// 	{
-// 		OnWall = true;
-// 		MyTimeline->Play();
-
-// 		GetWorld()->GetTimerManager().SetTimer(UnusedHandler, this, &AMainCharacter::WallRunExpire, FallOffWallTime);
-// 	}
-// }
-
-// void AMainCharacter::OnWallEndOverlap(class UPrimitiveComponent *OverlappedComp, class AActor *OtherActor, class UPrimitiveComponent *OtherComp, int32 OtherBodyIndex)
-// {
-// 	if (OtherActor->ActorHasTag(TEXT("Runable")))
-// 	{
-// 		WallRunExpire();
-// 	}
-// }
