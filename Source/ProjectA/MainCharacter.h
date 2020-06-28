@@ -36,6 +36,10 @@ protected:
 
 	class UTimelineComponent *MyTimeline;
 
+	// Inventory
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Items")
+	class UInventoryComponent* Inventory;
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -118,4 +122,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = CharacterMovement)
 	float JumpHeight = 420;
+
+	UFUNCTION(BlueprintCallable, Category = "Items")
+	void UseItem(class UItem* Item);
 };

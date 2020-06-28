@@ -13,6 +13,9 @@
 #include "Math/UnrealMathUtility.h"
 #include "TimerManager.h"
 #include "DrawDebugHelpers.h"
+#include "Items/Item.h"
+#include "Items/InventoryComponent.h"
+
 // Sets default values
 AMainCharacter::AMainCharacter()
 {
@@ -24,6 +27,9 @@ AMainCharacter::AMainCharacter()
 
 	MyTimeline->SetLooping(true);
 	MyTimeline->SetIgnoreTimeDilation(true);
+
+	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
+	Inventory->Capacity = 20;
 }
 // Called when the game starts or when spawned
 void AMainCharacter::BeginPlay()
@@ -164,6 +170,15 @@ void AMainCharacter::FindDirectionAndSide(FVector WallNormal, EWallRunSide &Side
 	}
 	Direction = SideCrossProduct.CrossProduct(WallNormal, SideVector);
 	Side = SideLocal;
+}
+
+void AMainCharacter::UseItem(class UItem* Item)
+{
+	if (Item)
+	{
+		Item->Use(this);
+		Item->OnUse(this); //bp event
+	}
 }
 
 bool AMainCharacter::CanSurfaceBeWallRan(FVector SurfaceNormal) const
