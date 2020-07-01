@@ -18,6 +18,7 @@ enum EWallRunEndReason
 	FellOffWall,
 	JumpedOfWall
 };
+class MeleeWeapon;
 UCLASS()
 class PROJECTA_API AMainCharacter : public ACharacter
 {
@@ -61,6 +62,8 @@ private:
 	void BeginWallRun();
 	void EndWallRun(EWallRunEndReason Reason);
 	FTimerHandle UnusedHandler;
+
+	void AttachWeapons();
 
 public:
 	UFUNCTION()
@@ -125,4 +128,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Items")
 	void UseItem(class UItem* Item);
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class AMeleeWeapon> Sword;
+
+	AMeleeWeapon* SwordL;
+	AMeleeWeapon* SwordR;
 };

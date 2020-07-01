@@ -13,8 +13,9 @@
 #include "Math/UnrealMathUtility.h"
 #include "TimerManager.h"
 #include "DrawDebugHelpers.h"
-#include "Items/Item.h"
-#include "Items/InventoryComponent.h"
+#include "IventorySystem/Items/Item.h"
+#include "IventorySystem/Items/InventoryComponent.h"
+#include "MeleeWeapon.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -29,7 +30,8 @@ AMainCharacter::AMainCharacter()
 	MyTimeline->SetIgnoreTimeDilation(true);
 
 	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
-	Inventory->Capacity = 20;
+	//Inventory->Capacity = 20;
+
 }
 // Called when the game starts or when spawned
 void AMainCharacter::BeginPlay()
@@ -52,6 +54,7 @@ void AMainCharacter::BeginPlay()
 		MyTimeline->SetTimelineFinishedFunc(TimelineFinished);
 		MyTimeline->SetLooping(true);
 	}
+	AttachWeapons();
 }
 
 // Called every frame
@@ -83,13 +86,15 @@ void AMainCharacter::Landed(const FHitResult &Hit)
 void AMainCharacter::MoveForward(float AxisValue)
 {
 	ForwardAxis = AxisValue;
+
 	AddMovementInput(GetActorForwardVector(), ForwardAxis);
 }
 
 void AMainCharacter::MoveRight(float AxisValue)
 {
 	RightAxis = AxisValue;
-	AddMovementInput(GetActorRightVector(), RightAxis);
+
+	AddMovementInput(GetActorRightVector(), AxisValue);
 }
 
 void AMainCharacter::EndingJump()
@@ -100,11 +105,9 @@ void AMainCharacter::EndingJump()
 
 void AMainCharacter::DoubleJump()
 {
-	FindLaunchVelocity();
 	if (JumpCounter <= 1)
 	{
 		ACharacter::LaunchCharacter(FindLaunchVelocity(), false, true);
-		UE_LOG(LogTemp, Warning, TEXT("Jumps %s"), *FindLaunchVelocity().ToString());
 		JumpCounter++;
 
 		if (OnWall)
@@ -141,6 +144,23 @@ void AMainCharacter::EndWallRun(EWallRunEndReason Reason)
 	GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0, 0, 0));
 	OnWall = false;
 	MyTimeline->Stop();
+}
+
+void AMainCharacter::AttachWeapons()
+{
+	GetMesh()->HideBoneByName(TEXT("pivotA_l"), EPhysBodyOp::PBO_None);
+	GetMesh()->HideBoneByName(TEXT("pivotB_l"), EPhysBodyOp::PBO_None);
+	GetMesh()->HideBoneByName(TEXT("pivotA_r"), EPhysBodyOp::PBO_None);
+	GetMesh()->HideBoneByName(TEXT("pivotB_r"), EPhysBodyOp::PBO_None);
+
+	SwordL = GetWorld()->SpawnActor<AMeleeWeapon>(Sword);
+	SwordR = GetWorld()->SpawnActor<AMeleeWeapon>(Sword);
+
+	SwordL->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("SwordSocketL"));
+	SwordR->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("SwordSocketR"));
+
+	SwordL->SetOwner(this);
+	SwordR->SetOwner(this);
 }
 
 void AMainCharacter::FindDirectionAndSide(FVector WallNormal, EWallRunSide &Side, FVector &Direction)
@@ -225,6 +245,8 @@ FVector AMainCharacter::FindLaunchVelocity() const
 			FVector ToTheRight = GetActorRightVector() * RightAxis;
 			FVector ForwardVector = GetActorForwardVector() * ForwardAxis;
 			LaunchDirection = ForwardVector + ToTheRight;
+			UE_LOG(LogTemp, Warning, TEXT("rightaxis %f, Right actor vector: %s, final: %s"), RightAxis, *GetActorRightVector().ToString(), *ToTheRight.ToString());
+			UE_LOG(LogTemp, Warning, TEXT("forward axis: %f, Forward actor vector: %s, final: %s"), ForwardAxis, *GetActorForwardVector().ToString(), *ForwardVector.ToString());
 		}
 	}
 	return (LaunchDirection + FVector(0, 0, 1)) * GetCharacterMovement()->JumpZVelocity;
