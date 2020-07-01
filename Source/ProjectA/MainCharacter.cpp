@@ -32,7 +32,7 @@ AMainCharacter::AMainCharacter()
 	MyTimeline->SetIgnoreTimeDilation(true);
 
 	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
-	//Inventory->Capacity = 20;
+	Inventory->Capacity = 20;
 
 }
 // Called when the game starts or when spawned

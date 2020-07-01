@@ -16,14 +16,14 @@ void UInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FOnInventoryUpdated OnInventoryUpdated{};
+	//FOnInventoryUpdated OnInventoryUpdated{};
 
-	OnInventoryUpdated.BindUFuntion(this, FName("OnInventoryUpdated"));
+	//OnInventoryUpdated.BindUFuntion(this, FName("OnInventoryUpdated"));
 
-	for (auto& Items : DefaultItems)
-	{
-		AddItem(Item);
-	}
+	//for (UItems Item : DefaultItems)
+	//{
+	//	AddItem(Item);
+	//}
 	
 }
 
@@ -38,7 +38,7 @@ bool UInventoryComponent::AddItem(class UItem* Item)
 	
 	Item->OwningInventory = this;
 	Item->World = GetWorld();
-	Items.Add(Item)
+	Items.Add(Item);
 
 	//Update UI
 	OnInventoryUpdated.Broadcast();
