@@ -33,7 +33,7 @@ bool UInventoryComponent::AddItem(class UItem* Item)
 {
 	if (Items.Num() >= Capacity || !Item)
 	{
-		return false
+		return false;
 	}
 	
 	Item->OwningInventory = this;
