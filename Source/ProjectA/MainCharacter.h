@@ -58,6 +58,31 @@ private:
 
 	void EndingJump();
 	void DoubleJump();
+	void Sprint();
+	void StopSprinting();
+	void Dash();
+	void StopDashing();
+	void ResetDash();
+
+	UPROPERTY(EditAnywhere, Category = "CharacterMovement:Walking")
+	float SpeedMultiplier = 1.5;
+
+	UPROPERTY(EditAnywhere, Category = Dashing)
+	float DashDistance = 6000;
+
+	UPROPERTY(EditAnywhere, Category = Dashing)
+	float DashCooldown = 1;
+
+	UPROPERTY(EditAnywhere, Category = Dashing)
+	float DashStop = .1f;
+
+	FTimerHandle DashHandle;
+	bool CanDash = true;
+
+	UPROPERTY(EditAnywhere, Category = Dashing)
+	int MaxDashes = 2;
+
+	int DashCount = 0;
 
 	UFUNCTION(BlueprintCallable)
 	void PrimaryAttack();

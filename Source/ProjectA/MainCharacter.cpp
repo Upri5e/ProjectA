@@ -16,6 +16,8 @@
 #include "IventorySystem/Items/Item.h"
 #include "IventorySystem/Items/InventoryComponent.h"
 #include "MeleeWeapon.h"
+#include "Camera/PlayerCameraManager.h"
+
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -76,6 +78,11 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCompo
 
 	PlayerInputComponent->BindAction(TEXT("Basic Attack"), EInputEvent::IE_Pressed, this, &AMainCharacter::PrimaryAttack);
 	PlayerInputComponent->BindAction(TEXT("Alternative Attack"), EInputEvent::IE_Pressed, this, &AMainCharacter::SecondaryAttack);
+	PlayerInputComponent->BindAction(TEXT("Dash"), EInputEvent::IE_Pressed, this, &AMainCharacter::Dash);
+
+	PlayerInputComponent->BindAction(TEXT("Sprint"), EInputEvent::IE_Pressed, this, &AMainCharacter::Sprint);
+	PlayerInputComponent->BindAction(TEXT("Sprint"), EInputEvent::IE_Released, this, &AMainCharacter::StopSprinting);
+
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &AMainCharacter::DoubleJump);
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Released, this, &AMainCharacter::EndingJump);
 }
@@ -83,6 +90,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCompo
 void AMainCharacter::Landed(const FHitResult &Hit)
 {
 	JumpCounter = 0;
+	DashCount = 0;
 }
 
 void AMainCharacter::MoveForward(float AxisValue)
@@ -118,6 +126,42 @@ void AMainCharacter::DoubleJump()
 			JumpCounter++;
 		}
 	}
+}
+
+void AMainCharacter::Sprint()
+{
+	GetCharacterMovement()->MaxWalkSpeed *= SpeedMultiplier;
+
+}
+
+void AMainCharacter::StopSprinting()
+{
+	GetCharacterMovement()->MaxWalkSpeed /= SpeedMultiplier;
+}
+
+void AMainCharacter::Dash()
+{
+	if (CanDash && !OnWall && (DashCount < MaxDashes))
+	{
+		DashCount++;
+		FVector ForwardVec = GetWorld()->GetFirstPlayerController()->PlayerCameraManager->GetActorForwardVector();
+		GetCharacterMovement()->BrakingFrictionFactor = 0;
+		LaunchCharacter(FVector(ForwardVec.X, ForwardVec.Y, 0).GetSafeNormal() * DashDistance, true, true);
+		CanDash = false;
+		GetWorldTimerManager().SetTimer(DashHandle, this, &AMainCharacter::StopDashing, DashStop, false);
+	}
+}
+
+void AMainCharacter::StopDashing()
+{
+	GetCharacterMovement()->StopMovementImmediately();
+	GetWorldTimerManager().SetTimer(DashHandle, this, &AMainCharacter::ResetDash, DashCooldown, false);
+	GetCharacterMovement()->BrakingFrictionFactor = 2;
+}
+
+void AMainCharacter::ResetDash()
+{
+	CanDash = true;
 }
 
 void AMainCharacter::SecondaryAttack()
