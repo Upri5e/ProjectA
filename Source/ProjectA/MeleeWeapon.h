@@ -25,8 +25,15 @@ public:
 
 private:
 	UPROPERTY(VisibleAnywhere)
-		USceneComponent* Root;
+	USceneComponent* Root;
+
 	UPROPERTY(VisibleAnywhere)
-		UStaticMeshComponent* Mesh;
+	UStaticMeshComponent* Mesh;
+
+	UPROPERTY(EditAnywhere)
+	float Damage = 10;
+public:
+	void AttackPrimary();
+	void AttackSecondary();
 
 };

@@ -74,6 +74,8 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCompo
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AMainCharacter::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AMainCharacter::MoveRight);
 
+	PlayerInputComponent->BindAction(TEXT("Basic Attack"), EInputEvent::IE_Pressed, this, &AMainCharacter::PrimaryAttack);
+	PlayerInputComponent->BindAction(TEXT("Alternative Attack"), EInputEvent::IE_Pressed, this, &AMainCharacter::SecondaryAttack);
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &AMainCharacter::DoubleJump);
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Released, this, &AMainCharacter::EndingJump);
 }
@@ -116,6 +118,16 @@ void AMainCharacter::DoubleJump()
 			JumpCounter++;
 		}
 	}
+}
+
+void AMainCharacter::SecondaryAttack()
+{
+	SwordR->AttackSecondary();
+}
+
+void AMainCharacter::PrimaryAttack()
+{
+	SwordL->AttackPrimary();
 }
 
 void AMainCharacter::BeginWallRun()

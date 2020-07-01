@@ -59,12 +59,19 @@ private:
 	void EndingJump();
 	void DoubleJump();
 
+	UFUNCTION(BlueprintCallable)
+	void PrimaryAttack();
+	
+	void SecondaryAttack();
+
 	void BeginWallRun();
 	void EndWallRun(EWallRunEndReason Reason);
 	FTimerHandle UnusedHandler;
 
 	void AttachWeapons();
 
+	UPROPERTY(EditDefaultsOnly)
+	float MaxHealth = 100;
 public:
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent *HitComponent, AActor *OtherActor, UPrimitiveComponent *OtherComp, FVector NormalImpulse, const FHitResult &Hit);

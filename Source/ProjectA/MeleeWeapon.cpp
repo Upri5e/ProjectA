@@ -29,3 +29,15 @@ void AMeleeWeapon::Tick(float DeltaTime)
 
 }
 
+void AMeleeWeapon::AttackPrimary()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Slash"));
+}
+
+void AMeleeWeapon::AttackSecondary()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Slash Hard"));
+
+}
+
+
