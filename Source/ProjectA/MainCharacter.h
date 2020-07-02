@@ -28,6 +28,10 @@ public:
 	// Sets default values for this character's properties
 	AMainCharacter();
 
+	// Inventory
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Items")
+	class UInventoryComponent* Inventory;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -37,9 +41,6 @@ protected:
 
 	class UTimelineComponent *MyTimeline;
 
-	// Inventory
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Items")
-	class UInventoryComponent* Inventory;
 
 public:
 	// Called every frame
@@ -49,6 +50,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent *PlayerInputComponent) override;
 
 	virtual void Landed(const FHitResult &Hit) override;
+	bool bIsPickingUp = false;
 
 private:
 	void MoveForward(float AxisValue);

@@ -85,6 +85,8 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCompo
 
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &AMainCharacter::DoubleJump);
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Released, this, &AMainCharacter::EndingJump);
+
+	/*PlayerInputComponent->BindAction(TEXT("Interact"), EInputEvent::IE_Pressed, this, &AItemPickUp::PickUp);*/
 }
 
 void AMainCharacter::Landed(const FHitResult &Hit)
@@ -105,6 +107,16 @@ void AMainCharacter::MoveRight(float AxisValue)
 	RightAxis = AxisValue;
 
 	AddMovementInput(GetActorRightVector(), AxisValue);
+}
+
+void AMainCharacter::Interact()
+{
+	// Check if its an item
+	//if (AItemPickUp * ItemActor)
+	//{
+	//	AItemPickUp->PickUp();
+	//	return;
+	//}
 }
 
 void AMainCharacter::EndingJump()
