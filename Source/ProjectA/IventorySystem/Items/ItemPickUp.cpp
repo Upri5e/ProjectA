@@ -6,15 +6,14 @@
 // Sets default values
 AItemPickUp::AItemPickUp()
 {
-	//BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Box Collider"));
-	//BoxCollider->bGenerateOverlapEvents = true;
-	//BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &AItemPickUp::TriggerEnter);
-	//BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &AItemPickUp::TriggerExit);
-
-	//RootComponent = BoxCollider;
+	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Box Collider"));
+	BoxCollider->SetGenerateOverlapEvents(true);
+	BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &AItemPickUp::TriggerEnter);
+	BoxCollider->OnComponentEndOverlap.AddDynamic(this, &AItemPickUp::TiggerExit);
+	RootComponent = BoxCollider;
 
 	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Base Mesh"));
-	BaseMesh->SetupAttachment(RootComponent);
+	BaseMesh->SetupAttachment(BoxCollider);
 
 }
 
@@ -23,33 +22,28 @@ void AItemPickUp::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	//if (PlayerController != nullptr) 
-	//{
-	//	if (PlayerController->bIsPickingUp && bItemIsWithinRange)
-	//	{
-	//		PickUp();
-	//	}
-	//}
 }
 
 void AItemPickUp::PickUp()
 {
-	/*PlayerController->Inventory.AddItem(Item);*/
-	Destroy();
+	// check if player is picking up
+	if (!bIsPickingUp)
+	{
+		bIsPickingUp = true;
+		UE_LOG(LogTemp, Warning, TEXT("You picked up item!"));
+	}
+	
 }
 
-void AItemPickUp::GetPlayer(AActor* Player)
+void AItemPickUp::TriggerEnter(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	PlayerController = Cast<AMainCharacter>(Player);
+	bIsInRange = true;
+	UE_LOG(LogTemp, Warning, TEXT("In pickup range!"));
 }
 
-void AItemPickUp::TriggerEnter(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AItemPickUp::TiggerExit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	bItemIsWithinRange = true;
-}
-
-void AItemPickUp::TriggerExit(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	bItemIsWithinRange = false;
+	bIsInRange = false;
+	UE_LOG(LogTemp, Warning, TEXT("Out of pick up range!"))
 }
 

@@ -32,6 +32,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Items")
 	class UInventoryComponent* Inventory;
 
+	class AItemPickUp* ItemActor;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -51,12 +53,14 @@ public:
 
 	virtual void Landed(const FHitResult &Hit) override;
 	bool bIsPickingUp = false;
+	float Reach = 100.0f;
 
 private:
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
 
-	void Interact();
+	void InteractStart();
+	void InteractEnd();
 
 	void EndingJump();
 	void DoubleJump();

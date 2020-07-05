@@ -15,9 +15,11 @@
 #include "DrawDebugHelpers.h"
 #include "IventorySystem/Items/Item.h"
 #include "IventorySystem/Items/InventoryComponent.h"
+#include "IventorySystem/Items/ItemPickUp.h"
 #include "MeleeWeapon.h"
 #include "Camera/PlayerCameraManager.h"
 
+#define OUT
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -64,6 +66,7 @@ void AMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	ClampHorizontalVelocity();
+
 }
 
 // Called to bind functionality to input
@@ -86,7 +89,8 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCompo
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &AMainCharacter::DoubleJump);
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Released, this, &AMainCharacter::EndingJump);
 
-	/*PlayerInputComponent->BindAction(TEXT("Interact"), EInputEvent::IE_Pressed, this, &AItemPickUp::PickUp);*/
+	PlayerInputComponent->BindAction(TEXT("Interact"), EInputEvent::IE_Pressed, this, &AMainCharacter::InteractStart);
+	PlayerInputComponent->BindAction(TEXT("Interact"), EInputEvent::IE_Released, this, &AMainCharacter::InteractEnd);
 }
 
 void AMainCharacter::Landed(const FHitResult &Hit)
@@ -109,14 +113,20 @@ void AMainCharacter::MoveRight(float AxisValue)
 	AddMovementInput(GetActorRightVector(), AxisValue);
 }
 
-void AMainCharacter::Interact()
+void AMainCharacter::InteractStart()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Interact Started!"))
 	// Check if its an item
-	//if (AItemPickUp * ItemActor)
-	//{
-	//	AItemPickUp->PickUp();
-	//	return;
-	//}
+	if (ItemActor)
+	{
+		ItemActor->PickUp();
+		return;
+	}
+}
+
+void AMainCharacter::InteractEnd()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Interact Ended!"))
 }
 
 void AMainCharacter::EndingJump()

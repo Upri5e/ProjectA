@@ -10,6 +10,8 @@
 #include "ItemPickUp.generated.h"
 
 class UPrimitiveComponent;
+class UBoxComponent;
+class UStaticMeshComponent;
 
 UCLASS()
 class PROJECTA_API AItemPickUp : public AActor
@@ -25,33 +27,23 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-
-
-
 	void PickUp();
-	
-	void GetPlayer(AActor* Player);
-
-	bool bItemIsWithinRange = false;
 
 	UFUNCTION()
-	void TriggerEnter(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	
+	void TriggerEnter(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	UFUNCTION()
-	void TriggerExit(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	void TiggerExit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 private:
 
-	UPROPERTY()
-		UBoxComponent* BoxCollider;
+	bool bIsPickingUp = false;
+	bool bIsInRange;
 
-	UPROPERTY(EditAnywhere)
-		UStaticMeshComponent* BaseMesh;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UBoxComponent* BoxCollider;
 
-	UPROPERTY()
-		AMainCharacter* PlayerController;
-
-	UPROPERTY()
-		UItem* Item;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* BaseMesh;
 
 };
