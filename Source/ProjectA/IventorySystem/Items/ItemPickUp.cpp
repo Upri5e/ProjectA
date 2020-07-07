@@ -24,6 +24,7 @@ void AItemPickUp::BeginPlay()
 	
 }
 
+// Picks up Item
 void AItemPickUp::PickUp()
 {
 	// check if player is picking up
@@ -38,12 +39,12 @@ void AItemPickUp::PickUp()
 void AItemPickUp::TriggerEnter(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	bIsInRange = true;
-	UE_LOG(LogTemp, Warning, TEXT("In pickup range!"));
+	/*UE_LOG(LogTemp, Warning, TEXT("In pickup range!"));*/
 }
 
 void AItemPickUp::TiggerExit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	bIsInRange = false;
-	UE_LOG(LogTemp, Warning, TEXT("Out of pick up range!"))
+	/*UE_LOG(LogTemp, Warning, TEXT("Out of pick up range!"))*/
 }
 

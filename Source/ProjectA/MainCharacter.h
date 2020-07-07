@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/SphereComponent.h"
 #include "GameFramework/Character.h"
+#include "IventorySystem/Items/ItemPickUp.h"
 #include "MainCharacter.generated.h"
 
 UENUM()
@@ -19,6 +21,7 @@ enum EWallRunEndReason
 	JumpedOfWall
 };
 class MeleeWeapon;
+class USphereComponent;
 UCLASS()
 class PROJECTA_API AMainCharacter : public ACharacter
 {
@@ -103,6 +106,10 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 	float MaxHealth = 100;
+
+	UPROPERTY(EditAnywhere, Category = "Pick Up", meta = (AllowPrivateAccess = "true"))
+	USphereComponent* PickupRange;
+
 public:
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent *HitComponent, AActor *OtherActor, UPrimitiveComponent *OtherComp, FVector NormalImpulse, const FHitResult &Hit);

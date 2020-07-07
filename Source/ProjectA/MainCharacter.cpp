@@ -15,11 +15,10 @@
 #include "DrawDebugHelpers.h"
 #include "IventorySystem/Items/Item.h"
 #include "IventorySystem/Items/InventoryComponent.h"
-#include "IventorySystem/Items/ItemPickUp.h"
 #include "MeleeWeapon.h"
 #include "Camera/PlayerCameraManager.h"
 
-#define OUT
+
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -35,6 +34,10 @@ AMainCharacter::AMainCharacter()
 
 	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
 	Inventory->Capacity = 20;
+
+	PickupRange = CreateDefaultSubobject<USphereComponent>(TEXT("Pickup Range"));
+	PickupRange->SetupAttachment(RootComponent);
+	PickupRange->SetSphereRadius(100.0f);
 
 }
 // Called when the game starts or when spawned
@@ -115,18 +118,22 @@ void AMainCharacter::MoveRight(float AxisValue)
 
 void AMainCharacter::InteractStart()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Interact Started!"))
-	// Check if its an item
-	if (ItemActor)
-	{
+	/*UE_LOG(LogTemp, Warning, TEXT("Interact Started!"))*/
+
+	TArray<AActor*> inRangeItems;
+	PickupRange->GetOverlappingActors(inRangeItems);
+
 		ItemActor->PickUp();
-		return;
-	}
+	// Check if its an item
+	//if (ItemActor)
+	//{
+	//	
+	//}
 }
 
 void AMainCharacter::InteractEnd()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Interact Ended!"))
+	
 }
 
 void AMainCharacter::EndingJump()
